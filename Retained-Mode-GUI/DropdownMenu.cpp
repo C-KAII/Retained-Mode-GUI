@@ -124,8 +124,8 @@ void DropdownMenu::update(Renderer& renderer, UIState& uiState) {
   // Deselect if clicked outside
   if (m_isExpanded && uiState.mouseDown && uiState.activeItem != m_id || uiState.keyEntered == SDLK_ESCAPE) {
     m_isExpanded = false;
-    uiState.resetBlockingArea();
     uiState.mouseDown = false; // prevent clicking through dropdown
+    uiState.resetBlockingArea();
   }
 
   setZIndex(m_isExpanded ? 100 : 0);
@@ -156,7 +156,7 @@ void DropdownMenu::render(Renderer& renderer, const UIState& uiState) {
     for (int i = 0; i < static_cast<int>(m_options.size()); ++i) {
       int optionY = m_y + m_height + (i * m_height);
 
-      SDL_Color optionColor = (m_hotOptionY == optionY) ? UTILS::COLOR::WHITE : SDL_Color{ 230, 230, 230, 255 };
+      SDL_Color optionColor = (m_hotOptionY == optionY) ? UTILS::COLOR::WHITE : UTILS::COLOR::LIGHT_LIGHT_GREY;
 
       renderer.drawRect(m_x + uiState.scrollX, optionY + uiState.scrollY, m_width, m_height, optionColor);
       renderer.drawText(m_options[i], m_x + 5 + uiState.scrollX, optionY + 5 + uiState.scrollY, UTILS::COLOR::BLACK);

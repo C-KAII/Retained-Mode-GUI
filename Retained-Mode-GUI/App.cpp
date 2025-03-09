@@ -30,7 +30,7 @@ void App::run() {
   while (m_running) {
     render();
 
-    m_running &= m_uiState.handleEvents(m_layout, m_renderer);
+    m_running &= m_uiManager.handleEvents(m_uiState, m_layout, m_renderer);
 
     if (m_layout.needsUpdate() || m_uiState.needsUpdate) {
       m_layout.applyLayout();
@@ -42,61 +42,6 @@ void App::run() {
 // private
 
 void App::addWidgets() {
-  // Button testing
-  m_layout.addWidget(std::make_unique<Button>(
-    GEN_ID, 0, 0, 100, 50,
-    [this]() {
-      std::cout << "ABOVE button clicked!\n";
-    },
-    "ABOVE",
-    Widget::LabelPosition::ABOVE,
-    SDL_Color{ 255, 204, 255, 255 }
-  ));
-
-  m_layout.addWidget(std::make_unique<Button>(
-    GEN_ID, 0, 0, 100, 50,
-    [this]() {
-      std::cout << "BELOW button clicked!\n";
-    },
-    "BELOW",
-    Widget::LabelPosition::BELOW,
-    SDL_Color{ 102, 255, 255, 255 }
-  ));
-
-  m_layout.addWidget(std::make_unique<Button>(
-    GEN_ID, 0, 0, 100, 50,
-    [this]() {
-      std::cout << "LHS button clicked!\n";
-    },
-    "LHS",
-    Widget::LabelPosition::LHS,
-    SDL_Color{ 255, 204, 255, 255 }
-  ));
-
-  m_layout.addWidget(std::make_unique<Button>(
-    GEN_ID, 0, 0, 100, 50,
-    [this]() {
-      std::cout << "RHS button clicked!\n";
-    },
-    "RHS",
-    Widget::LabelPosition::RHS,
-    SDL_Color{ 102, 255, 255, 255 }
-  ));
-
-  m_layout.addWidget(std::make_unique<Button>(
-    GEN_ID, 0, 0, 100, 50,
-    [this]() {
-      std::cout << "INSIDE button clicked!\n";
-    },
-    "INSIDE",
-    Widget::LabelPosition::INSIDE,
-    SDL_Color{ 102, 255, 255, 255 }
-  ));
-
-  // Spacers
-  m_layout.addWidget(std::make_unique<Spacer>(GEN_ID, 0, 0, 100, 40));
-  m_layout.addWidget(std::make_unique<Spacer>(GEN_ID, 0, 0, 100, 40));
-
   // Text box
   m_layout.addWidget(std::make_unique<TextBox>(
     GEN_ID, 0, 0, 200, 40,
@@ -302,37 +247,37 @@ void App::addWidgets() {
   //m_layout.addWidget(std::make_unique<TextField>(GEN_ID, 0, 0, 200, m_renderer.getFontHeight()));
 
 
-  // Button to trigger Popup Dialog widget
-  m_layout.addWidget(std::make_unique<Button>(
-    GEN_ID, 0, 0, 120, 40,
-    [this]() {
-      m_addWidgetDialog->show();
-    },
-    "Widget Adder", Widget::LabelPosition::INSIDE,
-    UTILS::COLOR::GREEN
-  ));
-  // Create popup dialog for adding widgets
-  m_addWidgetDialog = std::make_unique<PopupDialog>(GEN_ID, 0, 0, 300, 200, "Add Widget", PopupDialog::DialogType::FORM);
-  m_addWidgetDialog->addMessage("Enter Widget Name:");
-  m_addWidgetDialog->addTextField("Name", widgetName);
-  m_addWidgetDialog->addButton(
-    "Add", [this]() {
-      std::cout << "Adding Widget: " << widgetName << std::endl;
-      m_layout.addWidget(std::make_unique<Button>(
-        GEN_ID, 0, 0, 100, 50,
-        []() {
-          std::cout << "New button clicked!" << std::endl;
-        },
-        widgetName, Widget::LabelPosition::INSIDE,
-        SDL_Color{ 100, 100, 255, 255 }
-      ));
-      m_addWidgetDialog->hide();
-      m_uiState.needsUpdate = true;
-    });
-  m_addWidgetDialog->addButton(
-    "Cancel", [this]() {
-      m_addWidgetDialog->hide();
-    });
+  //// Button to trigger Popup Dialog widget
+  //m_layout.addWidget(std::make_unique<Button>(
+  //  GEN_ID, 0, 0, 120, 40,
+  //  [this]() {
+  //    m_addWidgetDialog->show();
+  //  },
+  //  "Widget Adder", Widget::LabelPosition::INSIDE,
+  //  UTILS::COLOR::GREEN
+  //));
+  //// Create popup dialog for adding widgets
+  //m_addWidgetDialog = std::make_unique<PopupDialog>(GEN_ID, 0, 0, 300, 200, "Add Widget", PopupDialog::DialogType::FORM);
+  //m_addWidgetDialog->addMessage("Enter Widget Name:");
+  //m_addWidgetDialog->addTextField("Name", widgetName);
+  //m_addWidgetDialog->addButton(
+  //  "Add", [this]() {
+  //    std::cout << "Adding Widget: " << widgetName << std::endl;
+  //    m_layout.addWidget(std::make_unique<Button>(
+  //      GEN_ID, 0, 0, 100, 50,
+  //      []() {
+  //        std::cout << "New button clicked!" << std::endl;
+  //      },
+  //      widgetName, Widget::LabelPosition::INSIDE,
+  //      SDL_Color{ 100, 100, 255, 255 }
+  //    ));
+  //    m_addWidgetDialog->hide();
+  //    m_uiState.needsUpdate = true;
+  //  });
+  //m_addWidgetDialog->addButton(
+  //  "Cancel", [this]() {
+  //    m_addWidgetDialog->hide();
+  //  });
 
 
   for (auto& widget : m_layout.getWidgets()) {
@@ -388,14 +333,27 @@ void App::render() {
         widget->render(m_renderer, m_uiState);
       }
     }
-
-    if (m_addWidgetDialog->isVisible()) {
-      m_addWidgetDialog->update(m_renderer, m_uiState);
-      m_addWidgetDialog->render(m_renderer, m_uiState);
-    }
-
   } else {
-    m_debugRenderer.renderDebug();
+    m_debugRenderer.renderDebug(m_uiState, m_layout, m_renderer);
+  }
+
+  if (m_uiState.isRightClickMenuOpen) {
+    std::string menuOption = m_rightClickMenu.getOption(m_renderer, m_uiState);
+    if (menuOption == "Properties") {
+      std::cout << "Properties of Widget ID: " << m_uiState.rightClickedWidget->getId() << '\n';
+
+    } else if (menuOption == "Delete") {
+      if (m_uiState.rightClickedWidget) {
+        std::cout << "Deleting Widget ID: " << m_uiState.rightClickedWidget->getId() << '\n';
+        m_layout.deleteWidget(m_uiState.rightClickedWidget);
+        m_uiState.needsUpdate = true;;
+        std::cout << "Widget deleted" << std::endl;
+      }
+    } else if (menuOption == "Add Widget") {
+      std::cout << "Adding new widget...\n";
+      m_layout.addWidget(std::make_unique<Button>(GEN_ID, m_uiState.buttonRX, m_uiState.buttonRY, 100, 50));
+      m_uiState.needsUpdate = true;;
+    }
   }
 
   renderHelp();

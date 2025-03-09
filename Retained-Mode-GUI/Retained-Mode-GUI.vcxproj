@@ -29,6 +29,7 @@
     <ClCompile Include="TextBox.cpp" />
     <ClCompile Include="TextField.cpp" />
     <ClCompile Include="ToggleSwitch.cpp" />
+    <ClCompile Include="UIManager.cpp" />
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -40,11 +41,13 @@
     <ClInclude Include="LayoutManager.h" />
     <ClInclude Include="PopupDialog.h" />
     <ClInclude Include="Renderer.h" />
+    <ClInclude Include="RightClickMenu.h" />
     <ClInclude Include="Slider.h" />
     <ClInclude Include="Spacer.h" />
     <ClInclude Include="TextBox.h" />
     <ClInclude Include="TextField.h" />
     <ClInclude Include="ToggleSwitch.h" />
+    <ClInclude Include="UIManager.h" />
     <ClInclude Include="UIState.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="Widget.h" />

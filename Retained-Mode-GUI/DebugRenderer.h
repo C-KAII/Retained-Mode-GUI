@@ -1,21 +1,17 @@
 #pragma once
-#include "Renderer.h"
-#include "UIState.h"
-#include "LayoutManager.h"
+
+class LayoutManager;
+class Renderer;
+class Widget;
+struct UIState;
 
 class DebugRenderer {
 public:
-  DebugRenderer(Renderer& renderer, UIState& uiState, LayoutManager& layout)
-    : m_renderer(renderer), m_uiState(uiState), m_layout(layout) {}
-
+  DebugRenderer() = default;
   ~DebugRenderer() = default;
 
-  void renderDebug();
+  void renderDebug(UIState& uiState, LayoutManager& layout, Renderer& renderer);
 
 private:
-  void drawWidgetDebugInfo(Widget& widget);
-
-  Renderer& m_renderer;
-  UIState& m_uiState;
-  LayoutManager& m_layout;
+  void drawWidgetDebugInfo(Widget& widget, UIState& uiState, Renderer& renderer);
 };

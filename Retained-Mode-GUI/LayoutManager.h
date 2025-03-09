@@ -40,9 +40,21 @@ public:
     m_needsUpdate = true;
   }
 
+  void deleteWidget(Widget* widgetToDelete) {
+    auto it = std::find_if(
+      m_widgets.begin(), m_widgets.end(),
+      [&](const std::unique_ptr<Widget>& widget) {
+        return widget.get() == widgetToDelete;
+      });
+
+    if (it != m_widgets.end()) {
+      m_widgets.erase(it);
+      m_needsUpdate = true;
+    }
+  }
+
   void reorderWidget(Widget* dragged, Widget* target, bool insertBefore) {
     auto& widgets = m_widgets;
-
     // Find the index of dragged and target widgets
     int draggedIndex = -1, targetIndex = -1;
     for (int i = 0; i < widgets.size(); ++i) {
@@ -50,9 +62,8 @@ public:
       if (widgets[i].get() == target) { targetIndex = i; }
     }
 
-    if (draggedIndex == -1 || targetIndex == -1 || draggedIndex == targetIndex) {
-      return; // Invalid indices, no change needed
-    }
+    // Invalid indices, no change needed
+    if (draggedIndex == -1 || targetIndex == -1 || draggedIndex == targetIndex) { return; }
 
     // Extract the dragged widget safely
     std::unique_ptr<Widget> draggedWidget = std::move(widgets[draggedIndex]);
