@@ -64,14 +64,17 @@ If you see a **black window**, it means SDL2 is working correctly!
 ---
 
 ## **Features**
-- **Immediate Mode UI (IMGUI)**
+- **Retained Mode UI (GMGUI)**
 - **Dynamic Layout System** (Grid, Vertical, Horizontal)
 - **Custom Widgets**:
   - Buttons (Clickable, event-driven)
   - Sliders (Adjustable values)
   - Text Fields (Keyboard input support)
+  - Toggle Switches
+  - Dropdown Menus
+  - Popup Dialog (add widgets during execution, etc.)
 - **Simple SDL2-based rendering**
-- **Debugging Tools** (Color-coded elements, Console output)
+- **Debugging Tools** (Color-coded elements, Console output, Debug mode)
 
 ---
 
@@ -95,8 +98,8 @@ imgui_app.exe
 
 ## **Future Plans**
 - **Improve Layout Manager (Auto-resizing, dynamic updates)**
-- **Better UI event handling (Drag & Drop, Tab Navigation)**
-- **Add resizable windows and panels**
+- **Better UI event handling**
+- **Add resizable widgets, windows and panels**
 - **Enhance rendering (Theming, Borders, Shadows)**
 
 ---
