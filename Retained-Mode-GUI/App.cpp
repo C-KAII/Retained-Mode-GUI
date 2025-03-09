@@ -152,134 +152,6 @@ void App::addWidgets() {
   m_layout.addWidget(std::make_unique<TextField>(GEN_ID, 0, 0, 200, 0, "Text Field 2"));
   m_layout.addWidget(std::make_unique<TextField>(GEN_ID, 0, 0, 200, 0, "Text Field 3", Widget::LabelPosition::ABOVE));
 
-
-  //m_layout.addWidget(std::make_unique<Button>(
-  //  GEN_ID, 0, 0, 100, 50,
-  //  [this]() {
-  //    std::cout << "Blue button clicked!\n";
-  //    int numCols = m_layout.getNumColumns() - 1;
-  //    if (numCols >= 1) {
-  //      m_layout.setNumColumns(numCols);
-  //    }
-  //  },
-  //  SDL_Color{ 0, 0, 255, 255 }
-  //));
-  //m_layout.addWidget(std::make_unique<Button>(
-  //  GEN_ID, 0, 0, 100, 50,
-  //  [this]() {
-  //    std::cout << "Green button clicked!\n";
-  //    int numCols = m_layout.getNumColumns() + 1;
-  //    if (numCols <= m_layout.getNumWidgets()) {
-  //      m_layout.setNumColumns(numCols);
-  //    }
-  //  },
-  //  SDL_Color{ 0, 255, 0, 255 }
-  //));
-  //m_layout.addWidget(std::make_unique<Button>(
-  //  GEN_ID, 0, 0, 100, 50,
-  //  [this]() {
-  //    std::cout << "Pink button clicked!\n";
-  //    m_redValue = rand() % 256;
-  //    m_greenValue = rand() % 256;
-  //    m_blueValue = rand() % 256;
-  //  },
-  //  SDL_Color{ 255, 204, 255, 255 }
-  //));
-  //m_layout.addWidget(std::make_unique<Button>(
-  //  GEN_ID, 0, 0, 100, 50,
-  //  [this]() {
-  //    std::cout << "Cyan button clicked!\n";
-  //    m_running = false; // quit
-  //  },
-  //  SDL_Color{ 102, 255, 255, 255 }
-  //));
-  //m_layout.addWidget(std::make_unique<Slider>(GEN_ID, 0, 0, 16, 100, 0, 255, m_redValue));
-  //m_layout.addWidget(std::make_unique<Slider>(GEN_ID, 0, 0, 16, 100, 0, 255, m_greenValue));
-  //m_layout.addWidget(std::make_unique<Slider>(GEN_ID, 0, 0, 16, 100, 0, 255, m_blueValue));
-  //m_layout.addWidget(std::make_unique<TextField>(GEN_ID, 0, 0, 200, m_renderer.getFontHeight()));
-  //m_layout.addWidget(std::make_unique<TextField>(GEN_ID, 0, 0, 200, m_renderer.getFontHeight()));
-  //m_layout.addWidget(std::make_unique<Button>(
-  //  GEN_ID, 0, 0, 100, 50,
-  //  [this]() {
-  //    std::cout << "Blue button clicked!\n";
-  //    int numCols = m_layout.getNumColumns() - 1;
-  //    if (numCols >= 1) {
-  //      m_layout.setNumColumns(numCols);
-  //    }
-  //  },
-  //  SDL_Color{ 0, 0, 255, 255 }
-  //));
-  //m_layout.addWidget(std::make_unique<Button>(
-  //  GEN_ID, 0, 0, 100, 50,
-  //  [this]() {
-  //    std::cout << "Green button clicked!\n";
-  //    int numCols = m_layout.getNumColumns() + 1;
-  //    if (numCols <= m_layout.getNumWidgets()) {
-  //      m_layout.setNumColumns(numCols);
-  //    }
-  //  },
-  //  SDL_Color{ 0, 255, 0, 255 }
-  //));
-  //m_layout.addWidget(std::make_unique<Button>(
-  //  GEN_ID, 0, 0, 100, 50,
-  //  [this]() {
-  //    std::cout << "Pink button clicked!\n";
-  //    m_redValue = rand() % 256;
-  //    m_greenValue = rand() % 256;
-  //    m_blueValue = rand() % 256;
-  //  },
-  //  SDL_Color{ 255, 204, 255, 255 }
-  //));
-  //m_layout.addWidget(std::make_unique<Button>(
-  //  GEN_ID, 0, 0, 100, 50,
-  //  [this]() {
-  //    std::cout << "Cyan button clicked!\n";
-  //    m_running = false; // quit
-  //  },
-  //  SDL_Color{ 102, 255, 255, 255 }
-  //));
-  //m_layout.addWidget(std::make_unique<Slider>(GEN_ID, 0, 0, 16, 100, 0, 255, m_redValue));
-  //m_layout.addWidget(std::make_unique<Slider>(GEN_ID, 0, 0, 16, 100, 0, 255, m_greenValue));
-  //m_layout.addWidget(std::make_unique<Slider>(GEN_ID, 0, 0, 16, 100, 0, 255, m_blueValue));
-  //m_layout.addWidget(std::make_unique<TextField>(GEN_ID, 0, 0, 200, m_renderer.getFontHeight()));
-  //m_layout.addWidget(std::make_unique<TextField>(GEN_ID, 0, 0, 200, m_renderer.getFontHeight()));
-  //m_layout.addWidget(std::make_unique<TextField>(GEN_ID, 0, 0, 200, m_renderer.getFontHeight()));
-  //m_layout.addWidget(std::make_unique<TextField>(GEN_ID, 0, 0, 200, m_renderer.getFontHeight()));
-
-
-  //// Button to trigger Popup Dialog widget
-  //m_layout.addWidget(std::make_unique<Button>(
-  //  GEN_ID, 0, 0, 120, 40,
-  //  [this]() {
-  //    m_addWidgetDialog->show();
-  //  },
-  //  "Widget Adder", Widget::LabelPosition::INSIDE,
-  //  UTILS::COLOR::GREEN
-  //));
-  //// Create popup dialog for adding widgets
-  //m_addWidgetDialog = std::make_unique<PopupDialog>(GEN_ID, 0, 0, 300, 200, "Add Widget", PopupDialog::DialogType::FORM);
-  //m_addWidgetDialog->addMessage("Enter Widget Name:");
-  //m_addWidgetDialog->addTextField("Name", widgetName);
-  //m_addWidgetDialog->addButton(
-  //  "Add", [this]() {
-  //    std::cout << "Adding Widget: " << widgetName << std::endl;
-  //    m_layout.addWidget(std::make_unique<Button>(
-  //      GEN_ID, 0, 0, 100, 50,
-  //      []() {
-  //        std::cout << "New button clicked!" << std::endl;
-  //      },
-  //      widgetName, Widget::LabelPosition::INSIDE,
-  //      SDL_Color{ 100, 100, 255, 255 }
-  //    ));
-  //    m_addWidgetDialog->hide();
-  //    m_uiState.needsUpdate = true;
-  //  });
-  //m_addWidgetDialog->addButton(
-  //  "Cancel", [this]() {
-  //    m_addWidgetDialog->hide();
-  //  });
-
-
   for (auto& widget : m_layout.getWidgets()) {
     widget->setPadding(m_renderer);
   }
@@ -306,7 +178,10 @@ void App::render() {
 
   imguiPrepare();
 
-  if (!m_uiState.debugMode) {
+  if (m_uiState.debugMode) {
+    m_debugRenderer.renderDebug(m_uiState, m_layout, m_renderer);
+
+  } else {
     auto& widgets = m_layout.getWidgets();
     std::vector<Widget*> renderOrder;
 
@@ -333,8 +208,6 @@ void App::render() {
         widget->render(m_renderer, m_uiState);
       }
     }
-  } else {
-    m_debugRenderer.renderDebug(m_uiState, m_layout, m_renderer);
   }
 
   if (m_uiState.isRightClickMenuOpen) {

@@ -6,7 +6,6 @@
 #include "UIManager.h"
 #include "DebugRenderer.h"
 #include "RightClickMenu.h"
-//#include "PopupDialog.h"
 #include <SDL2/SDL.h>
 
 class App {
@@ -31,9 +30,6 @@ private:
   UIManager m_uiManager;
   DebugRenderer m_debugRenderer;
   RightClickMenu m_rightClickMenu;
-
-  //std::unique_ptr<PopupDialog> m_addWidgetDialog;
-  //std::string widgetName;
   
   int m_redValue{ UTILS::COLOR::GREY.r };
   int m_greenValue{ UTILS::COLOR::GREY.g };
