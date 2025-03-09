@@ -17,9 +17,9 @@ bool UIManager::handleEvents(UIState& uiState, LayoutManager& layout, Renderer& 
 
     case SDL_MOUSEBUTTONDOWN:
       if (event.button.button == SDL_BUTTON_LEFT) {
+        uiState.mouseDown = true;
         uiState.buttonLX = event.button.x - uiState.scrollX;
         uiState.buttonLY = event.button.y - uiState.scrollY;
-        uiState.mouseDown = true;
 
         if (uiState.debugMode) {
           // In debug mode, try to pick up a widget
@@ -60,11 +60,8 @@ bool UIManager::handleEvents(UIState& uiState, LayoutManager& layout, Renderer& 
     case SDL_MOUSEBUTTONUP:
       if (event.button.button == SDL_BUTTON_LEFT) {
         uiState.mouseDown = false;
-
-        //if (uiState.isRightClickMenuOpen) {
-        //  handleRightClickSelection(uiState, layout);
-        //}
-        //uiState.isRightClickMenuOpen = false;
+        uiState.buttonLX = event.button.x - uiState.scrollX;
+        uiState.buttonLY = event.button.y - uiState.scrollY;
 
         bool flag = false;
         for (const auto& widget : layout.getWidgets()) {

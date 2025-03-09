@@ -219,13 +219,11 @@ void App::render() {
       if (m_uiState.rightClickedWidget) {
         std::cout << "Deleting Widget ID: " << m_uiState.rightClickedWidget->getId() << '\n';
         m_layout.deleteWidget(m_uiState.rightClickedWidget);
-        m_uiState.needsUpdate = true;;
         std::cout << "Widget deleted" << std::endl;
       }
     } else if (menuOption == "Add Widget") {
       std::cout << "Adding new widget...\n";
       m_layout.addWidget(std::make_unique<Button>(GEN_ID, m_uiState.buttonRX, m_uiState.buttonRY, 100, 50));
-      m_uiState.needsUpdate = true;;
     }
   }
 
