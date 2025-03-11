@@ -8,6 +8,7 @@
 #include "TextField.h"
 #include "ToggleSwitch.h"
 #include "DropdownMenu.h"
+#include "Scrollbar.h"
 #include <iostream>
 #include <cstdlib> // rand()
 #include <algorithm> // sort
@@ -24,6 +25,7 @@ bool App::init() {
 
 void App::run() {
   addWidgets();
+  addSystemWidgets();
   m_layout.applyLayout();
 
   m_running = true;
@@ -32,10 +34,23 @@ void App::run() {
 
     m_running &= m_uiManager.handleEvents(m_uiState, m_layout, m_renderer);
 
+    if (m_uiState.debugMode && !m_debuggingWindow.isOpen()) {
+      m_debuggingWindow.init();
+    } else if (!m_uiState.debugMode && m_debuggingWindow.isOpen()) {
+      m_debuggingWindow.cleanUp();
+    }
+
     if (m_layout.needsUpdate() || m_uiState.needsUpdate) {
       m_layout.applyLayout();
       m_uiState.needsUpdate = false;
     }
+
+    if (m_uiState.debugMode && m_debuggingWindow.isOpen()) {
+      m_debuggingWindow.update(m_uiState, m_layout);
+      m_debuggingWindow.render();
+      //m_debuggingWindow.handleEvents(m_uiState.debugMode);
+    }
+
   }
 }
 
@@ -157,6 +172,23 @@ void App::addWidgets() {
   }
 }
 
+void App::addSystemWidgets() {
+  // Horizontal scrollbar
+  m_uiManager.addSystemWidget(std::make_unique<Scrollbar>(
+    GEN_ID,
+    0, m_renderer.getScreenHeight() - 16,
+    m_renderer.getScreenWidth(), 16,
+    &m_uiState.scrollX, Scrollbar::ScrollType::HORIZONTAL
+  ));
+  // Vertical scrollbar
+  m_uiManager.addSystemWidget(std::make_unique<Scrollbar>(
+    GEN_ID,
+    m_renderer.getScreenWidth() - 16, 0,
+    16, m_renderer.getScreenHeight(),
+    &m_uiState.scrollY, Scrollbar::ScrollType::VERTICAL
+  ));
+}
+
 void App::imguiPrepare() { m_uiState.hotItem = 0; }
 
 void App::imguiFinish() {
@@ -177,6 +209,9 @@ void App::render() {
     });
 
   imguiPrepare();
+
+  m_uiState.clearSystemBlockingAreas();
+  m_uiManager.updateSystemWidgets(m_renderer, m_uiState);
 
   if (m_uiState.debugMode) {
     m_debugRenderer.renderDebug(m_uiState, m_layout, m_renderer);
@@ -210,10 +245,15 @@ void App::render() {
     }
   }
 
+  m_uiManager.renderSystemWidgets(m_renderer, m_uiState);
+
   if (m_uiState.isRightClickMenuOpen) {
     std::string menuOption = m_rightClickMenu.getOption(m_renderer, m_uiState);
-    if (menuOption == "Properties") {
-      std::cout << "Properties of Widget ID: " << m_uiState.rightClickedWidget->getId() << '\n';
+
+    // Right clicked a widget
+    if (menuOption == "Edit Properties") {
+      std::cout << "Editing properties of Widget ID: " << m_uiState.rightClickedWidget->getId() << '\n';
+      // TODO - implement widget property editor
 
     } else if (menuOption == "Delete") {
       if (m_uiState.rightClickedWidget) {
@@ -221,9 +261,62 @@ void App::render() {
         m_layout.deleteWidget(m_uiState.rightClickedWidget);
         std::cout << "Widget deleted" << std::endl;
       }
-    } else if (menuOption == "Add Widget") {
-      std::cout << "Adding new widget...\n";
-      m_layout.addWidget(std::make_unique<Button>(GEN_ID, m_uiState.buttonRX, m_uiState.buttonRY, 100, 50));
+
+      // Right clicked a free space
+    } else if (menuOption == "Add Spacer") {
+      m_layout.addWidget(std::make_unique<Spacer>(GEN_ID, 0, 0, 100, 100));
+      std::cout << "Added Spacer" << std::endl;
+
+    } else if (menuOption == "Add Text Box") {
+      m_layout.addWidget(std::make_unique<TextBox>(
+        GEN_ID, 0, 0, 200, 40,
+        m_renderer.getFontWidth(), m_renderer.getFontHeight(),
+        "New text box.",
+        UTILS::COLOR::BLACK
+      ));
+      std::cout << "Added Text Box" << std::endl;
+
+    } else if (menuOption == "Add Button") {
+      m_layout.addWidget(std::make_unique<Button>(
+        GEN_ID, 0, 0, 100, 50,
+        [this]() {
+          std::cout << "New button clicked!\n";
+          m_redValue = rand() % 256;
+          m_greenValue = rand() % 256;
+          m_blueValue = rand() % 256;
+        },
+        "Random Color",
+        Widget::LabelPosition::INSIDE,
+        SDL_Color{ (unsigned char)m_redValue, (unsigned char)m_greenValue, (unsigned char)m_blueValue, 255 }
+      ));
+      std::cout << "Added Button" << std::endl;
+
+    } else if (menuOption == "Add Slider") {
+      m_layout.addWidget(std::make_unique<Slider>(GEN_ID, 0, 0, 16, 100, 0, 255, m_redValue, "Red Value"));
+      std::cout << "Added Slider" << std::endl;
+
+    } else if (menuOption == "Add Text Field") {
+      m_layout.addWidget(std::make_unique<TextField>(GEN_ID, 0, 0, 200, 0, "New text field"));
+      std::cout << "Added Text Field" << std::endl;
+
+    } else if (menuOption == "Add Toggle Switch") {
+      m_layout.addWidget(std::make_unique<ToggleSwitch>(
+        GEN_ID, 0, 0, 60, 30, nullptr,
+        [](bool state) {
+          std::cout << "New state toggler: " << (state ? "ON" : "OFF") << std::endl;
+        }
+      ));
+      std::cout << "Added Toggle Switch" << std::endl;
+
+    } else if (menuOption == "Add Dropdown Menu") {
+      m_layout.addWidget(std::make_unique<DropdownMenu>(
+        GEN_ID, 0, 0, 150, 30,
+        std::vector<std::string>{"New Option 1", "New Option 2", "New Option 3"},
+        [](const std::string& selected) {
+          std::cout << "New Dropdown selected option: " << selected << std::endl;
+        }
+      ));
+      std::cout << "Added Dropdown Menu" << std::endl;
     }
   }
 
@@ -238,7 +331,7 @@ void App::render() {
 
 void App::renderHelp() {
   // Display debug help info widget
-  SDL_Rect helpRect = { m_renderer.getScreenWidth() - 30, 10, 20, 20 };
+  SDL_Rect helpRect = { m_renderer.getScreenWidth() - 40, 20, 20, 20 };
 
   m_renderer.drawRect(helpRect, UTILS::COLOR::BLACK);
   m_renderer.drawTextCentered(
@@ -274,6 +367,5 @@ void App::renderHelp() {
 
     m_renderer.drawText("By Kobi Chambers", 30, yPos, UTILS::COLOR::BLACK);
     yPos += linePadding;
-
   }
 }

@@ -2,11 +2,34 @@
 #include "IDGenerator.h"
 #include "Button.h"
 
-bool UIManager::handleEvents(UIState& uiState, LayoutManager& layout, Renderer& renderer) {
+bool UIManager::handleEvents(UIState& uiState, LayoutManager& layout, Renderer& renderer) const {
   SDL_Event event;
   while (SDL_PollEvent(&event)) {
-    switch (event.type) {
+    // Process events for any open windows
 
+    switch (event.type) {
+    case SDL_KEYUP:
+      switch (event.key.keysym.sym) {
+      case SDLK_F1:
+        uiState.debugMode = !uiState.debugMode;
+        break;
+      case SDLK_F4:
+        return false;
+      }
+      break;
+
+    case SDL_WINDOWEVENT:
+      // Check if debugging window should close
+      if (event.window.event == SDL_WINDOWEVENT_CLOSE) {
+        uiState.debugMode = false;
+      }
+      break;
+    }
+
+    // Don't process remaining events if not current window
+    if (event.window.windowID != renderer.getWindowID()) { continue; }
+
+    switch (event.type) {
     case SDL_MOUSEMOTION:
       uiState.mouseX = event.motion.x - uiState.scrollX;
       uiState.mouseY = event.motion.y - uiState.scrollY;
@@ -119,7 +142,7 @@ bool UIManager::handleEvents(UIState& uiState, LayoutManager& layout, Renderer& 
         uiState.scrollX -= 10; // Scroll right
       }
 
-      clampScrolling(uiState, layout.getGridWidth(), layout.getGridHeight(), renderer.getScreenWidth(), renderer.getScreenHeight());
+      uiState.clampScrolling(layout, renderer);
       break;
 
     case SDL_KEYDOWN:
@@ -137,16 +160,6 @@ bool UIManager::handleEvents(UIState& uiState, LayoutManager& layout, Renderer& 
       break;
 
     case SDL_KEYUP:
-      switch (event.key.keysym.sym) {
-      case SDLK_F1:
-        uiState.debugMode = !uiState.debugMode;
-        break;
-      case SDLK_F4:
-        return false;
-      default:
-        break;
-      }
-
       uiState.keyMod = 0;
       break;
 
@@ -177,7 +190,8 @@ bool UIManager::handleEvents(UIState& uiState, LayoutManager& layout, Renderer& 
         int newHeight = event.window.data2;
         renderer.updateWindowSize(newWidth, newHeight);
         uiState.needsUpdate = true;
-      }
+
+      } else if (event.window.event == SDL_WINDOWEVENT_CLOSE) { return false; }
       break;
 
     case SDL_QUIT:
@@ -186,25 +200,6 @@ bool UIManager::handleEvents(UIState& uiState, LayoutManager& layout, Renderer& 
   }
   return true;
 }
-
-//void UIManager::handleRightClickSelection(UIState& uiState, LayoutManager& layout) {
-//  if (uiState.rightClickedWidget) {
-//    // Handle widget-specific actions
-//    if (uiState.buttonRY >= uiState.buttonRY + 20 && uiState.buttonRY < uiState.buttonRY + 40) {
-//      std::cout << "Properties of Widget ID: " << uiState.rightClickedWidget->getId() << "\n";
-//    }
-//    if (uiState.buttonRY >= uiState.buttonRY + 40 && uiState.buttonRY < uiState.buttonRY + 60) {
-//      std::cout << "Delete Widget ID: " << uiState.rightClickedWidget->getId() << "\n";
-//      layout.removeWidget(uiState.rightClickedWidget);
-//    }
-//  } else {
-//    // Handle empty-space actions
-//    if (uiState.buttonRY >= uiState.buttonRY + 20 && uiState.buttonRY < uiState.buttonRY + 40) {
-//      std::cout << "Adding new widget...\n";
-//      layout.addWidget(std::make_unique<Button>(GEN_ID, uiState.buttonRX, uiState.buttonRY, 100, 50));
-//    }
-//  }
-//}
 
 void UIManager::processKeyInput(char c, int kbdItem, LayoutManager& layout) const {
   if (kbdItem != -1) {
@@ -216,16 +211,18 @@ void UIManager::processKeyInput(char c, int kbdItem, LayoutManager& layout) cons
   }
 }
 
-void UIManager::clampScrolling(UIState& uiState, const int gridWidth, const int gridHeight, const int screenWidth, const int screenHeight) {
-  uiState.scrollX = std::clamp(
-    uiState.scrollX,
-    std::min(0, -(gridWidth - screenWidth) - 210),
-    0
-  );
+void UIManager::addSystemWidget(std::unique_ptr<Widget> widget) {
+  m_systemWidgets.push_back(std::move(widget));
+}
 
-  uiState.scrollY = std::clamp(
-    uiState.scrollY,
-    std::min(0, -(gridHeight - screenHeight) - 210),
-    0
-  );
+void UIManager::updateSystemWidgets(Renderer& renderer, UIState& uiState) {
+  for (auto& widget : m_systemWidgets) {
+    widget->update(renderer, uiState);
+  }
+}
+
+void UIManager::renderSystemWidgets(Renderer& renderer, const UIState& uiState) {
+  for (auto& widget : m_systemWidgets) {
+    widget->render(renderer, uiState);
+  }
 }

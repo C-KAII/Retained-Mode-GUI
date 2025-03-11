@@ -18,7 +18,7 @@ public:
     TEXT_FIELD,
     TOGGLE_SWITCH,
     DROPDOWN_MENU,
-    POPUP_DIALOG
+    SCROLLBAR
   };
 
   enum class LabelPosition {
@@ -62,8 +62,8 @@ public:
     case WidgetType::DROPDOWN_MENU:
       result = "DropdownMenu";
       break;
-    case WidgetType::POPUP_DIALOG:
-      result = "PopupDialog";
+    case WidgetType::SCROLLBAR:
+      result = "Scrollbar";
       break;
     default:
       result = "Error: No matching widget types";

@@ -5,8 +5,13 @@
 
 class UIManager {
 public:
-  bool handleEvents(UIState& uiState, LayoutManager& layout, Renderer& renderer);
-  //void handleRightClickSelection(UIState& uiState, LayoutManager& layout);
+  bool handleEvents(UIState& uiState, LayoutManager& layout, Renderer& renderer) const;
   void processKeyInput(char c, int kbdItem, LayoutManager& layout) const;
-  void clampScrolling(UIState& uiState, const int gridWidth, const int gridHeight, const int screenWidth, const int screenHeight);
+
+  void addSystemWidget(std::unique_ptr<Widget> widget);
+  void updateSystemWidgets(Renderer& renderer, UIState& uiState);
+  void renderSystemWidgets(Renderer& renderer, const UIState& uiState);
+
+private:
+  std::vector<std::unique_ptr<Widget>> m_systemWidgets;
 };

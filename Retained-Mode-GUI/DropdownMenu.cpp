@@ -36,7 +36,7 @@ void DropdownMenu::update(Renderer& renderer, UIState& uiState) {
 
   if (m_isExpanded) {
     SDL_Rect dropdownArea = { m_x, m_y, m_width, m_height * (static_cast<int>(m_options.size() + 1)) };
-    uiState.setBlockingArea(dropdownArea);
+    uiState.setWidgetBlockingArea(dropdownArea);
   }
 
   if (uiState.kbdItem == 0) {
@@ -125,7 +125,7 @@ void DropdownMenu::update(Renderer& renderer, UIState& uiState) {
   if (m_isExpanded && uiState.mouseDown && uiState.activeItem != m_id || uiState.keyEntered == SDLK_ESCAPE) {
     m_isExpanded = false;
     uiState.mouseDown = false; // prevent clicking through dropdown
-    uiState.resetBlockingArea();
+    uiState.resetWidgetBlockingArea();
   }
 
   setZIndex(m_isExpanded ? 100 : 0);

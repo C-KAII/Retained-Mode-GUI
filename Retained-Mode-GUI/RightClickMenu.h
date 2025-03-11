@@ -6,21 +6,27 @@
 class RightClickMenu {
 public:
   std::string getOption(Renderer& renderer, UIState& uiState) {
-    const int numOptions = (uiState.rightClickedWidget) ? 2 : 1;
+    const int numOptions = (uiState.rightClickedWidget) ? 2 : 7;
     const SDL_Rect rect = {
       uiState.buttonRX + uiState.scrollX,
       uiState.buttonRY + uiState.scrollY,
       150, 30
     };
 
-    uiState.setBlockingArea(rect.x, rect.y, rect.w, rect.h * numOptions);
+    uiState.setWidgetBlockingArea(rect.x, rect.y, rect.w, rect.h * numOptions);
 
     std::vector<std::string> options;
     if (uiState.rightClickedWidget) {
-      options.push_back("Properties");
+      options.push_back("Edit Properties");
       options.push_back("Delete");
     } else {
-      options.push_back("Add Widget");
+      options.push_back("Add Spacer");
+      options.push_back("Add Text Box");
+      options.push_back("Add Button");
+      options.push_back("Add Slider");
+      options.push_back("Add Text Field");
+      options.push_back("Add Toggle Switch");
+      options.push_back("Add Dropdown Menu");
     }
 
     int hotOptionY = -100;
@@ -34,7 +40,7 @@ public:
           selectedOption = i;
           uiState.mouseDown = false;
           uiState.isRightClickMenuOpen = false;
-          uiState.resetBlockingArea();
+          uiState.resetWidgetBlockingArea();
           return options[i];
         }
       }
@@ -51,8 +57,12 @@ public:
       ) {
       uiState.mouseDown = false;
       uiState.isRightClickMenuOpen = false;
-      uiState.resetBlockingArea();
+      uiState.resetWidgetBlockingArea();
     }
     return "";
+  }
+
+  bool addWidgetMenu() {
+
   }
 };

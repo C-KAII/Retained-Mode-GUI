@@ -29,13 +29,32 @@ struct UIState {
     return true;
   }
 
-  bool isClickBlocked() const { return regionHit(blockingArea); }
+  void clampScrolling(const LayoutManager& layout, const Renderer& renderer) {
+    // Set and clamp x-axis scrolling
+    maxScrollX = std::min(0, -(layout.getGridWidth() - renderer.getScreenWidth()) - 210);
+    scrollX = std::clamp(scrollX, maxScrollX, 0);
+    // Set and clamp y-axis scrolling
+    maxScrollY = std::min(0, -(layout.getGridHeight() - renderer.getScreenHeight()) - 210);
+    scrollY = std::clamp(scrollY, maxScrollY, 0);
+  }
 
-  void setBlockingArea(int x, int y, int w, int h) { blockingArea = { x, y, w, h }; }
+  bool isClickBlocked() const {
+    for (const auto& area : systemBlockingAreas) {
+      if (regionHit(area)) { return true; }
+    }
+    // Finally check the widgetBlockingArea
+    return regionHit(widgetBlockingArea);
+  }
 
-  void setBlockingArea(SDL_Rect rect) { blockingArea = rect; }
+  void setWidgetBlockingArea(int x, int y, int w, int h) { widgetBlockingArea = { x, y, w, h }; }
 
-  void resetBlockingArea() { blockingArea = { 0, 0, 0, 0 }; }
+  void setWidgetBlockingArea(SDL_Rect rect) { widgetBlockingArea = rect; }
+
+  void resetWidgetBlockingArea() { widgetBlockingArea = { 0, 0, 0, 0 }; }
+
+  void addSystemBlockingArea(const SDL_Rect& rect) { systemBlockingAreas.push_back(rect); }
+
+  void clearSystemBlockingAreas() { systemBlockingAreas.clear(); }
 
   int mouseX{ 0 };
   int mouseY{ 0 };
@@ -43,9 +62,12 @@ struct UIState {
   int buttonLY{ 0 };
   int buttonRX{ 0 };
   int buttonRY{ 0 };
+  bool mouseDown{ false };
+
   int scrollX{ 0 };
   int scrollY{ 0 };
-  bool mouseDown{ false };
+  int maxScrollX{ 0 };
+  int maxScrollY{ 0 };
 
   int hotItem{ 0 };
   int activeItem{ 0 };
@@ -63,7 +85,9 @@ struct UIState {
   bool isRightClickMenuOpen{ false };
   Widget* rightClickedWidget{ nullptr };
 
-  SDL_Rect blockingArea{ 0, 0, 0, 0 };
   Widget* draggingWidget{ nullptr };
   SDL_Point dragOffset{ 0, 0 };
+
+  SDL_Rect widgetBlockingArea{ 0, 0, 0, 0 };
+  std::vector<SDL_Rect> systemBlockingAreas;
 };

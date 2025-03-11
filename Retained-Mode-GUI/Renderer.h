@@ -46,6 +46,7 @@ public:
       return false;
     }
 
+    m_mainWindowID = SDL_GetWindowID(m_window);
     m_screenWidth = width;
     m_screenHeight = height;
     return true;
@@ -138,6 +139,28 @@ public:
     SDL_DestroyTexture(textTexture);
   }
 
+  void drawTextCentered(const std::string& text, SDL_Rect rect, SDL_Color color = UTILS::COLOR::BLACK) {
+    SDL_Texture* textTexture = createTextTexture(text, color);
+    if (!textTexture) { return; }
+
+    // Get text dimensions
+    int textW = 0;
+    int textH = 0;
+    TTF_SizeText(m_font, text.c_str(), &textW, &textH);
+
+    int centerX = rect.x + ((rect.w - textW) / 2);
+    int centerY = rect.y + ((rect.h - textH) / 2);
+
+    if (centerX < rect.x) { centerX = rect.x; }
+    if (centerY < rect.y) { centerY = rect.y; }
+
+    SDL_Rect dstRect = { centerX, centerY, textW, textH };
+
+    // Render text
+    SDL_RenderCopy(m_renderer, textTexture, nullptr, &dstRect);
+    SDL_DestroyTexture(textTexture);
+  }
+
   void clear(SDL_Color color) {
     SDL_SetRenderDrawColor(m_renderer, color.r, color.g, color.b, 255);
     SDL_RenderClear(m_renderer);
@@ -147,8 +170,7 @@ public:
 
   SDL_Renderer* getRenderer() { return m_renderer; }
 
-  int getFontWidth() const { return m_fontW; }
-  int getFontHeight() const { return m_fontH; }
+  Uint32 getWindowID() const { return m_mainWindowID; }
 
   void updateWindowSize(int width, int height) {
     if (m_renderer) {
@@ -162,10 +184,15 @@ public:
   int getScreenWidth() const { return m_screenWidth; }
   int getScreenHeight() const { return m_screenHeight; }
 
+  int getFontWidth() const { return m_fontW; }
+  int getFontHeight() const { return m_fontH; }
+
 private:
   SDL_Window* m_window{ nullptr };
   SDL_Renderer* m_renderer{ nullptr };
   TTF_Font* m_font{ nullptr };
+
+  Uint32 m_mainWindowID{ 0 };
 
   int m_screenWidth{ 0 };
   int m_screenHeight{ 0 };
