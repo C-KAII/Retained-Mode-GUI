@@ -58,10 +58,10 @@ struct UIState {
 
   int mouseX{ 0 };
   int mouseY{ 0 };
-  int buttonLX{ 0 };
-  int buttonLY{ 0 };
-  int buttonRX{ 0 };
-  int buttonRY{ 0 };
+  int leftMbX{ 0 };
+  int leftMbY{ 0 };
+  int rightMbX{ 0 };
+  int rightMbY{ 0 };
   bool mouseDown{ false };
 
   int scrollX{ 0 };
@@ -80,6 +80,7 @@ struct UIState {
   bool isCapsLockOn{ false };
 
   bool needsUpdate{ true };
+  bool editMode{ false };
   bool debugMode{ false };
 
   bool isRightClickMenuOpen{ false };

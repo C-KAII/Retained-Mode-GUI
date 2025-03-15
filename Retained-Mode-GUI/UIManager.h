@@ -2,10 +2,11 @@
 #include "UIState.h"
 #include "LayoutManager.h"
 #include "Renderer.h"
+#include "DebuggingWindow.h"
 
 class UIManager {
 public:
-  bool handleEvents(UIState& uiState, LayoutManager& layout, Renderer& renderer) const;
+  bool handleEvents(UIState& uiState, LayoutManager& layout, Renderer& renderer, DebuggingWindow& debugger) const;
   void processKeyInput(char c, int kbdItem, LayoutManager& layout) const;
 
   void addSystemWidget(std::unique_ptr<Widget> widget);

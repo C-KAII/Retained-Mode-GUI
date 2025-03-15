@@ -12,7 +12,7 @@ public:
     int id, int x, int y, int width, int height,
     std::function<void()> onClick = nullptr,
     std::string label = "", LabelPosition labelPos = LabelPosition::INSIDE,
-    SDL_Color color = SDL_Color{50, 50, 50, 255}
+    SDL_Color color = UTILS::COLOR::VERY_DARK_GREY
   );
 
   ~Button() override = default;

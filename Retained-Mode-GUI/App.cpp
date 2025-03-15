@@ -14,12 +14,22 @@
 #include <algorithm> // sort
 
 bool App::init() {
+  if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+    std::cerr << "SDL Initialization Failed: " << SDL_GetError() << std::endl;
+    return false;
+  }
   if (!m_renderer.init("RMGUI", 640, 480)) {
+    return false;
+  }
+
+  if (TTF_Init() == -1) {
+    std::cerr << "SDL_ttf could not initialize! Error: " << TTF_GetError() << std::endl;
     return false;
   }
   if (!m_renderer.initFont("assets/fonts/OpenDyslexicMono-Regular.otf", 12)) {
     return false;
   }
+
   return true;
 }
 
@@ -30,9 +40,10 @@ void App::run() {
 
   m_running = true;
   while (m_running) {
+    updateFPS();
     render();
 
-    m_running &= m_uiManager.handleEvents(m_uiState, m_layout, m_renderer);
+    m_running &= m_uiManager.handleEvents(m_uiState, m_layout, m_renderer, m_debuggingWindow);
 
     if (m_uiState.debugMode && !m_debuggingWindow.isOpen()) {
       m_debuggingWindow.init();
@@ -46,17 +57,34 @@ void App::run() {
     }
 
     if (m_uiState.debugMode && m_debuggingWindow.isOpen()) {
-      m_debuggingWindow.update(m_uiState, m_layout);
-      m_debuggingWindow.render();
-      //m_debuggingWindow.handleEvents(m_uiState.debugMode);
+      m_debuggingWindow.render(m_uiState, m_layout, m_renderer);
     }
 
+    SDL_Delay(10);
   }
 }
 
 // private
 
 void App::addWidgets() {
+  // Spacers
+  m_layout.addWidget(std::make_unique<Spacer>(GEN_ID, 0, 0, 100, 50));
+  m_layout.addWidget(std::make_unique<Spacer>(GEN_ID, 0, 0, 100, 50));
+  
+  // Graphs
+  // Sine wave graph
+  auto sineFunc = [](float x) { return std::sin(x); };
+  m_layout.addWidget(std::make_unique<Graph>(
+    GEN_ID, 0, 0, 300, 200,
+    UTILS::COLOR::GREEN, sineFunc
+  ));
+
+  // Performance graph
+  m_layout.addWidget(std::make_unique<Graph>(
+    GEN_ID, 0, 0, 300, 200,
+    UTILS::COLOR::RED, m_fpsData
+  ));
+
   // Text box
   m_layout.addWidget(std::make_unique<TextBox>(
     GEN_ID, 0, 0, 200, 40,
@@ -81,7 +109,7 @@ void App::addWidgets() {
   ));
 
   m_layout.addWidget(std::make_unique<ToggleSwitch>(
-    GEN_ID, 0, 0, 60, 30, &m_uiState.debugMode,
+    GEN_ID, 0, 0, 60, 30, &m_uiState.editMode,
     [](bool state) {},
     "Debug Mode"
   ));
@@ -189,9 +217,22 @@ void App::addSystemWidgets() {
   ));
 }
 
-void App::imguiPrepare() { m_uiState.hotItem = 0; }
+void App::updateFPS() {
+  Uint32 currentTime = SDL_GetTicks();
+  float dt = (currentTime - m_frameTime) / 1000.0f; // convert to secs
+  m_frameTime = currentTime;
 
-void App::imguiFinish() {
+  float fps = (dt > 0) ? (1.0f / dt) : 0.0f;
+
+  if (m_fpsData.size() > 200) {
+    m_fpsData.erase(m_fpsData.begin()); // Keep last 200 frames
+  }
+  m_fpsData.emplace_back(currentTime / 1000.0f, fps);
+}
+
+void App::rmguiPrepare() { m_uiState.hotItem = 0; }
+
+void App::rmguiFinish() {
   if (m_uiState.mouseDown == 0) {
     m_uiState.activeItem = 0;
   } else if (m_uiState.activeItem == 0) {
@@ -208,12 +249,12 @@ void App::render() {
     255
     });
 
-  imguiPrepare();
+  rmguiPrepare();
 
   m_uiState.clearSystemBlockingAreas();
   m_uiManager.updateSystemWidgets(m_renderer, m_uiState);
 
-  if (m_uiState.debugMode) {
+  if (m_uiState.editMode) {
     m_debugRenderer.renderDebug(m_uiState, m_layout, m_renderer);
 
   } else {
@@ -322,11 +363,9 @@ void App::render() {
 
   renderHelp();
 
-  imguiFinish();
+  rmguiFinish();
 
   m_renderer.present();
-
-  SDL_Delay(10);
 }
 
 void App::renderHelp() {
@@ -353,7 +392,9 @@ void App::renderHelp() {
     const int linePadding = m_renderer.getFontHeight() + 2;
     int yPos = 30;
 
-    m_renderer.drawText("F1 - Debug mode", 30, yPos, UTILS::COLOR::BLACK);
+    m_renderer.drawText("F1 - Edit mode", 30, yPos, UTILS::COLOR::BLACK);
+    yPos += linePadding;
+    m_renderer.drawText("F2 - Debug mode", 30, yPos, UTILS::COLOR::BLACK);
     yPos += linePadding;
     m_renderer.drawText("   - Hover widgets for info", 30, yPos, UTILS::COLOR::BLACK);
     yPos += linePadding;

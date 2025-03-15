@@ -8,8 +8,8 @@ public:
   std::string getOption(Renderer& renderer, UIState& uiState) {
     const int numOptions = (uiState.rightClickedWidget) ? 2 : 7;
     const SDL_Rect rect = {
-      uiState.buttonRX + uiState.scrollX,
-      uiState.buttonRY + uiState.scrollY,
+      uiState.rightMbX + uiState.scrollX,
+      uiState.rightMbY + uiState.scrollY,
       150, 30
     };
 

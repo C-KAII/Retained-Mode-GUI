@@ -10,20 +10,20 @@ class Renderer {
 public:
   Renderer() = default;
 
-  ~Renderer() {
-    SDL_StopTextInput();
-    if (m_font) { TTF_CloseFont(m_font); }
+  ~Renderer() { cleanUp(); }
+
+  void cleanUp() {
     if (m_renderer) { SDL_DestroyRenderer(m_renderer); }
     if (m_window) { SDL_DestroyWindow(m_window); }
-    TTF_Quit();
-    SDL_Quit();
+  }
+
+  void closeFont() {
+    if (m_font) { TTF_CloseFont(m_font); }
   }
 
   bool init(const std::string& title, int width, int height) {
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-      std::cerr << "SDL Initialization Failed: " << SDL_GetError() << std::endl;
-      return false;
-    }
+    m_screenWidth = width;
+    m_screenHeight = height;
 
     m_window = SDL_CreateWindow(
       title.c_str(),
@@ -46,18 +46,11 @@ public:
       return false;
     }
 
-    m_mainWindowID = SDL_GetWindowID(m_window);
-    m_screenWidth = width;
-    m_screenHeight = height;
+    m_windowID = SDL_GetWindowID(m_window);
     return true;
   }
 
   bool initFont(const std::string& fontPath, int fontSize ) {
-    if (TTF_Init() == -1) {
-      std::cerr << "SDL_ttf could not initialize! Error: " << TTF_GetError() << std::endl;
-      return false;
-    }
-
     m_font = TTF_OpenFont(fontPath.c_str(), fontSize);
     if (!m_font) {
       std::cerr << "Failed to load font! Error: " << TTF_GetError() << std::endl;
@@ -67,6 +60,16 @@ public:
     TTF_SizeUTF8(m_font, "A", &m_fontW, &m_fontH);
     SDL_StartTextInput();
     return true;
+  }
+
+  void drawPixel(int x, int y, SDL_Color color) {
+    SDL_SetRenderDrawColor(m_renderer, color.r, color.g, color.b, color.a);
+    SDL_RenderDrawPoint(m_renderer, x, y);
+  }
+
+  void drawLine(int x1, int y1, int x2, int y2, SDL_Color color) {
+    SDL_SetRenderDrawColor(m_renderer, color.r, color.g, color.b, color.a);
+    SDL_RenderDrawLine(m_renderer, x1, y1, x2, y2);
   }
 
   void drawRect(int x, int y, int w, int h, SDL_Color color) {
@@ -170,7 +173,7 @@ public:
 
   SDL_Renderer* getRenderer() { return m_renderer; }
 
-  Uint32 getWindowID() const { return m_mainWindowID; }
+  Uint32 getWindowID() const { return m_windowID; }
 
   void updateWindowSize(int width, int height) {
     if (m_renderer) {
@@ -192,7 +195,7 @@ private:
   SDL_Renderer* m_renderer{ nullptr };
   TTF_Font* m_font{ nullptr };
 
-  Uint32 m_mainWindowID{ 0 };
+  Uint32 m_windowID{ 0 };
 
   int m_screenWidth{ 0 };
   int m_screenHeight{ 0 };

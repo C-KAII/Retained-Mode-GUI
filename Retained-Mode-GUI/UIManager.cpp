@@ -2,7 +2,7 @@
 #include "IDGenerator.h"
 #include "Button.h"
 
-bool UIManager::handleEvents(UIState& uiState, LayoutManager& layout, Renderer& renderer) const {
+bool UIManager::handleEvents(UIState& uiState, LayoutManager& layout, Renderer& renderer, DebuggingWindow& debugger) const {
   SDL_Event event;
   while (SDL_PollEvent(&event)) {
     // Process events for any open windows
@@ -11,6 +11,9 @@ bool UIManager::handleEvents(UIState& uiState, LayoutManager& layout, Renderer& 
     case SDL_KEYUP:
       switch (event.key.keysym.sym) {
       case SDLK_F1:
+        uiState.editMode = !uiState.editMode;
+        break;
+      case SDLK_F2:
         uiState.debugMode = !uiState.debugMode;
         break;
       case SDLK_F4:
@@ -27,13 +30,16 @@ bool UIManager::handleEvents(UIState& uiState, LayoutManager& layout, Renderer& 
     }
 
     // Don't process remaining events if not current window
-    if (event.window.windowID != renderer.getWindowID()) { continue; }
+    if (event.window.windowID != renderer.getWindowID()) {
+      debugger.handleEvents(event);
+      continue;
+    }
 
     switch (event.type) {
     case SDL_MOUSEMOTION:
       uiState.mouseX = event.motion.x - uiState.scrollX;
       uiState.mouseY = event.motion.y - uiState.scrollY;
-      if (uiState.debugMode && uiState.draggingWidget) {
+      if (uiState.editMode && uiState.draggingWidget) {
         uiState.draggingWidget->setPosition(uiState.mouseX - uiState.dragOffset.x, uiState.mouseY - uiState.dragOffset.y);
       }
       break;
@@ -41,35 +47,35 @@ bool UIManager::handleEvents(UIState& uiState, LayoutManager& layout, Renderer& 
     case SDL_MOUSEBUTTONDOWN:
       if (event.button.button == SDL_BUTTON_LEFT) {
         uiState.mouseDown = true;
-        uiState.buttonLX = event.button.x - uiState.scrollX;
-        uiState.buttonLY = event.button.y - uiState.scrollY;
+        uiState.leftMbX = event.button.x - uiState.scrollX;
+        uiState.leftMbY = event.button.y - uiState.scrollY;
 
-        if (uiState.debugMode) {
+        if (uiState.editMode) {
           // In debug mode, try to pick up a widget
           for (auto& widget : layout.getWidgets()) {
             SDL_Rect rect = widget->getRect();
             if (
-              uiState.buttonLX >= rect.x && uiState.buttonLX < rect.x + rect.w &&
-              uiState.buttonLY >= rect.y && uiState.buttonLY < rect.y + rect.h
+              uiState.leftMbX >= rect.x && uiState.leftMbX < rect.x + rect.w &&
+              uiState.leftMbY >= rect.y && uiState.leftMbY < rect.y + rect.h
               ) {
               uiState.draggingWidget = widget.get();
-              uiState.dragOffset.x = uiState.buttonLX - rect.x;
-              uiState.dragOffset.y = uiState.buttonLY - rect.y;
+              uiState.dragOffset.x = uiState.leftMbX - rect.x;
+              uiState.dragOffset.y = uiState.leftMbY - rect.y;
               break;
             }
           }
         }
       } else if (event.button.button == SDL_BUTTON_RIGHT) {
-        uiState.buttonRX = event.button.x - uiState.scrollX;
-        uiState.buttonRY = event.button.y - uiState.scrollY;
+        uiState.rightMbX = event.button.x - uiState.scrollX;
+        uiState.rightMbY = event.button.y - uiState.scrollY;
         uiState.rightClickedWidget = nullptr;
 
         // Check if right click on widget
         for (auto& widget : layout.getWidgets()) {
           SDL_Rect rect = widget->getRect();
           if (
-            uiState.buttonRX >= rect.x && uiState.buttonRX < rect.x + rect.w &&
-            uiState.buttonRY >= rect.y && uiState.buttonRY < rect.y + rect.h
+            uiState.rightMbX >= rect.x && uiState.rightMbX < rect.x + rect.w &&
+            uiState.rightMbY >= rect.y && uiState.rightMbY < rect.y + rect.h
             ) {
             uiState.rightClickedWidget = widget.get();
             break;
@@ -83,8 +89,8 @@ bool UIManager::handleEvents(UIState& uiState, LayoutManager& layout, Renderer& 
     case SDL_MOUSEBUTTONUP:
       if (event.button.button == SDL_BUTTON_LEFT) {
         uiState.mouseDown = false;
-        uiState.buttonLX = event.button.x - uiState.scrollX;
-        uiState.buttonLY = event.button.y - uiState.scrollY;
+        uiState.leftMbX = event.button.x - uiState.scrollX;
+        uiState.leftMbY = event.button.y - uiState.scrollY;
 
         bool flag = false;
         for (const auto& widget : layout.getWidgets()) {
@@ -97,7 +103,7 @@ bool UIManager::handleEvents(UIState& uiState, LayoutManager& layout, Renderer& 
           uiState.kbdItem = -1;
         }
 
-        if (uiState.debugMode && uiState.draggingWidget) {
+        if (uiState.editMode && uiState.draggingWidget) {
           int padding = 5;
           // On drop, see if we're over another widget to swap
           Widget* dropTarget = nullptr;
@@ -108,8 +114,8 @@ bool UIManager::handleEvents(UIState& uiState, LayoutManager& layout, Renderer& 
             // Ignore dragged widget
             if (widget.get() == uiState.draggingWidget) { continue; }
             if (
-              uiState.buttonLX >= rect.x - (padding / 2) && uiState.buttonLX < rect.x + rect.w + (padding / 2) &&
-              uiState.buttonLY >= rect.y - (padding / 2) && uiState.buttonLY < rect.y + rect.h + (padding / 2)
+              uiState.leftMbX >= rect.x - (padding / 2) && uiState.leftMbX < rect.x + rect.w + (padding / 2) &&
+              uiState.leftMbY >= rect.y - (padding / 2) && uiState.leftMbY < rect.y + rect.h + (padding / 2)
               ) {
               dropTarget = widget.get();
               // If mouse is on LHS, insert before

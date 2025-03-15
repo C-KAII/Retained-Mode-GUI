@@ -62,7 +62,7 @@ void Button::update(Renderer& renderer, UIState& uiState) {
 
   uiState.lastWidget = m_id;
 
-  if (uiState.debugMode) {
+  if (uiState.editMode) {
     m_clicked = false;
     return; // No need to process rest of update
   }

@@ -18,6 +18,22 @@ public:
 
   LayoutType getLayoutType() const { return m_type; }
 
+  std::string getLayoutTypeText() const {
+    std::string type;
+    switch (m_type) {
+    case LayoutType::GRID_RECT:
+      type = "GRID_RECT";
+      break;
+    case LayoutType::GRID_CUSTOM:
+      type = "GRID_CUSTOM";
+      break;
+    case LayoutType::FIXED:
+      type = "FIXED";
+      break;
+    }
+    return type;
+  }
+
   void setLayoutType(LayoutType type) { m_type = type; }
 
   int getNumColumns() const { return m_columns; }

@@ -46,7 +46,7 @@ void TextField::update(Renderer& renderer, UIState& uiState) {
       }
       uiState.keyEntered = 0;
     }
-    else if (!uiState.debugMode) {
+    else if (!uiState.editMode) {
       switch (uiState.keyEntered) {
 
       case SDLK_BACKSPACE:
@@ -96,7 +96,7 @@ void TextField::update(Renderer& renderer, UIState& uiState) {
 
   uiState.lastWidget = m_id;
 
-  if (uiState.debugMode) { return; }
+  if (uiState.editMode) { return; }
 
   // Process text input
   if (uiState.kbdItem == m_id && m_inputChar != -1) {

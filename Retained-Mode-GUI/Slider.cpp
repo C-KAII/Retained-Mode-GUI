@@ -54,7 +54,7 @@ void Slider::update(Renderer& renderer, UIState& uiState) {
 
   uiState.lastWidget = m_id;
 
-  if (uiState.debugMode) { return; }
+  if (uiState.editMode) { return; }
 
   // Mouse drag logic
   if (uiState.activeItem == m_id) {

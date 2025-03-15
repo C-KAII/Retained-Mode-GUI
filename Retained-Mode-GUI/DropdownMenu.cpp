@@ -96,7 +96,7 @@ void DropdownMenu::update(Renderer& renderer, UIState& uiState) {
 
   uiState.lastWidget = m_id;
 
-  if (uiState.debugMode) {
+  if (uiState.editMode) {
     m_isExpanded = false;
     setZIndex(0);
     return;

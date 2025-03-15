@@ -1,5 +1,6 @@
 #pragma once
 #include <SDL2/SDL.h>
+#include <functional>
 
 namespace UTILS {
 
@@ -41,6 +42,5 @@ constexpr SDL_Color BLUE = { 0, 0, 255, 255 };
 SDL_Color getContrastingColor(const SDL_Color& color);
 
 char getShiftedChar(char c);
-
 
 }

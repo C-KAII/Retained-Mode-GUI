@@ -6,24 +6,27 @@
 
 class DebuggingWindow {
 public:
-  DebuggingWindow() : m_width(640), m_height(480) {}
+  DebuggingWindow() = default;
   ~DebuggingWindow() { cleanUp(); }
 
   bool init(int width = 640, int height = 480);
-  void update(UIState& uiState, LayoutManager& layout);
-  void render();
-  //void handleEvents(bool& debugMode);
-  void cleanUp();
+  void render(const UIState& uiState, const LayoutManager& layout, const Renderer& renderer);
+  void handleEvents(const SDL_Event& event);
+  void cleanUp() {
+    m_renderer.cleanUp();
+    m_isOpen = false;
+  }
 
   bool isOpen() const { return m_isOpen; }
 
-  Uint32 getWindowID() const { return SDL_GetWindowID(m_window); }
+  Uint32 getWindowID() const { return m_renderer.getWindowID(); }
 
 private:
-  SDL_Window* m_window{ nullptr };
-  SDL_Renderer* m_renderer{ nullptr };
+  void drawDebugInfo(const UIState& uiState, const LayoutManager& layout, const Renderer& renderer);
+
+  Renderer m_renderer;
   bool m_isOpen{ false };
 
-  int m_width;
-  int m_height;
+  int m_scrollY{ 0 };
+  int m_maxScrollY{ 0 };
 };
